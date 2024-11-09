@@ -64,7 +64,7 @@ public class CameraOrbit : MonoBehaviour
     void HandleZoom()
     {
         float zoom = Input.GetAxis("Mouse ScrollWheel") * zoomSpeed;
-        currentDistance = Mathf.Clamp(currentDistance - zoom, 5f, 100f);  // Adjust distance with clamping
+        currentDistance = Mathf.Clamp(currentDistance - zoom, 60f, 100f);  // Adjust distance with clamping
 
         // Update camera position based on the new distance from the focus point
         Vector3 direction = (transform.position - focusPoint.position).normalized;
