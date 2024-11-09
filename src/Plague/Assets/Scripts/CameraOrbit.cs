@@ -7,10 +7,9 @@ public class CameraOrbit : MonoBehaviour
     public Transform focusPoint;          // The point around which the camera rotates
     public float rotationSpeed = 5.0f;    // Speed of rotation
     public float zoomSpeed = 10.0f;       // Speed of zooming
-    public float minVerticalAngle = -80f; // Minimum vertical angle (near the south pole)
-    public float maxVerticalAngle = 80f;  // Maximum vertical angle (near the north pole)
+    public float minVerticalAngle = -85f; // Minimum vertical angle (near the south pole)
+    public float maxVerticalAngle = 85f;  // Maximum vertical angle (near the north pole)
 
-    private float currentVerticalAngle = 0f;    // Track the current vertical angle
     private float currentDistance;              // Distance from focus point
     private Vector3 lastMousePosition;
 
@@ -18,10 +17,6 @@ public class CameraOrbit : MonoBehaviour
     {
         // Initialize distance based on the starting position
         currentDistance = Vector3.Distance(transform.position, focusPoint.position);
-
-        // Initialize the vertical angle based on the current rotation
-        Vector3 directionToFocus = (focusPoint.position - transform.position).normalized;
-        currentVerticalAngle = Vector3.SignedAngle(Vector3.ProjectOnPlane(directionToFocus, Vector3.up), directionToFocus, transform.right);
     }
 
     void Update()
@@ -34,20 +29,31 @@ public class CameraOrbit : MonoBehaviour
     // Handle rotating the camera with mouse drag
     void HandleMouseDrag()
     {
-        transform.position = new Vector3(transform.position[0], Mathf.Clamp(transform.position[1], -80f, 80f), transform.position[2]);
-        if (Input.GetMouseButton(0))  // Check if the left mouse button is held down
+        //transform.position = new Vector3(transform.position[0], Mathf.Clamp(transform.position[1], minVerticalAngle, maxVerticalAngle), transform.position[2]);
+        if (Input.GetMouseButton(0))
         {
-            Vector3 delta = Input.mousePosition - lastMousePosition;  // Calculate mouse movement
+            Vector3 delta = Input.mousePosition - lastMousePosition;
             float horizontal = delta.x * rotationSpeed * Time.deltaTime;
             float vertical = -delta.y * rotationSpeed * Time.deltaTime;
-            if (transform.position[1] > 80f || transform.position[1] < -80f)
-            {
-                vertical = 0;
-            }
-            // Horizontal rotation (around the Y-axis of the focus point)
-            transform.RotateAround(focusPoint.position, Vector3.up, horizontal);
 
-            transform.RotateAround(focusPoint.position, transform.right, vertical);  // Rotate around right vector
+            if (minVerticalAngle <= transform.position[1] && vertical < 0)
+            {
+                vertical = -delta.y * rotationSpeed * Time.deltaTime;
+            }
+
+            else if (transform.position[1] <= maxVerticalAngle && vertical > 0)
+            {
+                vertical = -delta.y * rotationSpeed * Time.deltaTime;
+            }
+
+            else
+            {
+                vertical = 0f;
+            }
+
+
+            transform.RotateAround(focusPoint.position, Vector3.up, horizontal);
+            transform.RotateAround(focusPoint.position, transform.right, vertical);
         }
 
         // Update the last mouse position

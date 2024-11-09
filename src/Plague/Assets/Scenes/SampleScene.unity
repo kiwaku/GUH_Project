@@ -342,6 +342,8 @@ MonoBehaviour:
   focusPoint: {fileID: 1952671262}
   rotationSpeed: 100
   zoomSpeed: 10
+  minVerticalAngle: -90
+  maxVerticalAngle: 90
 --- !u!1 &410087039
 GameObject:
   m_ObjectHideFlags: 0
