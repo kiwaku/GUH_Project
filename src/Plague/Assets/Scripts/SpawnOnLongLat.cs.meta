@@ -1,0 +1,12 @@
+fileFormatVersion: 2
+guid: 504711b879956f24f890d89d96289e22
+MonoImporter:
+  externalObjects: {}
+  serializedVersion: 2
+  defaultReferences:
+  - redMarkerPrefab: {fileID: 4760365673378353410, guid: 2e58aae5962eb174caac73bcab146af5, type: 3}
+  executionOrder: 0
+  icon: {instanceID: 0}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
