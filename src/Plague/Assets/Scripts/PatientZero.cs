@@ -12,6 +12,7 @@ public class PatientZero : MonoBehaviour
     private static readonly HttpClient client = new HttpClient();
     private static string apiKey;
     [SerializeField] SpawnOnLongLat spawn;
+    [SerializeField] Prompt2 prompt2;
     private static string model = "gpt-4o";
     private static List<Dictionary<string, string>> conversationMemory = new List<Dictionary<string, string>>
     {
@@ -104,13 +105,16 @@ Output should be as follows:
 
         // Get this prompt as patient zero from the UI
         // string prompt = "London, 2000";
+        //Debug.Log("Prompt 1: " + prompt);
+        
         yield return ConverseWithMemory(prompt);
+        
     }
 
 
     private async Task ConverseWithMemory(string prompt)
     {
-
+        StartCoroutine(prompt2.MainCoroutine(prompt));
         conversationMemory.Add(new Dictionary<string, string> { { "role", "user" }, { "content", prompt } });
 
         var requestBody = new
@@ -127,10 +131,11 @@ Output should be as follows:
         var responseString = await response.Content.ReadAsStringAsync();
         var responseObject = JsonConvert.DeserializeObject<ResponseObject>(responseString);
 
-        string assistantMessage = responseObject.choices[0].message.content;
-        Debug.Log("Chatbot response: " + assistantMessage);
+        string[] messages = responseObject.choices[0].message.content.Split(new[] { '\n' }, StringSplitOptions.RemoveEmptyEntries);
+        string assistantMessage = messages[messages.Length - 1];
+        Debug.Log("Chatbot 1 response: " + assistantMessage);
 
-        ParsedResponse parsedResponse = ParseResponse(assistantMessage);
+        ParsedResponse parsedResponse = ParseResponse(assistantMessage, prompt);
         Debug.Log($"City: {parsedResponse.City}, Year: {parsedResponse.Year}, Population: {parsedResponse.Population}, Longitude: {parsedResponse.Longitude}, Latitude: {parsedResponse.Latitude}, Connection Probability: {parsedResponse.ConnectionProbability}, Sanitation Level: {parsedResponse.SanitationLevel}, Public Health Level: {parsedResponse.PublicHealthLevel}, Economic Stability: {parsedResponse.EconomicStability}");
         spawn.SpawnMarker(parsedResponse.Latitude, parsedResponse.Longitude);
         conversationMemory.Add(new Dictionary<string, string> { { "role", "assistant" }, { "content", assistantMessage } });
@@ -140,7 +145,7 @@ Output should be as follows:
             conversationMemory.RemoveAt(1);
         }
     }
-    private static ParsedResponse ParseResponse(string response)
+    private static ParsedResponse ParseResponse(string response, string prompt)
     {
         try
         {
@@ -162,6 +167,8 @@ Output should be as follows:
             // }
             if (parts.Length != 10)
             {
+                Debug.Log("Chatbot 1 prompt: " + prompt);
+                Debug.LogError($"Response does not contain the expected number of parts {parts.Length}.");
                 throw new FormatException("Response does not contain the expected number of parts.");
             }
 
@@ -173,7 +180,7 @@ Output should be as follows:
                 Area = parts[3],
                 Longitude = float.Parse(parts[4]),
                 Latitude = float.Parse(parts[5]),
-                ConnectionProbability = ParseInt(parts[6], "Connection Probability"),
+                ConnectionProbability = float.Parse(parts[6]),
                 SanitationLevel = ParseInt(parts[7], "Sanitation Level"),
                 PublicHealthLevel = ParseInt(parts[8], "Public Health Level"),
                 EconomicStability = ParseInt(parts[9], "Economic Stability")
@@ -181,7 +188,7 @@ Output should be as follows:
         }
         catch (Exception ex)
         {
-            Debug.LogError("An error occurred while parsing: " + ex.Message);
+            Debug.LogError("An error occurred while parsing: " + ex.Message );
             Debug.LogError("Stack Trace: " + ex.StackTrace);
             throw;
         }
@@ -205,7 +212,7 @@ Output should be as follows:
         public string Area { get; set; }
         public float Longitude { get; set; }
         public float Latitude { get; set; }
-        public int ConnectionProbability { get; set; }
+        public float ConnectionProbability { get; set; }
         public int SanitationLevel { get; set; }
         public int PublicHealthLevel { get; set; }
         public int EconomicStability { get; set; }
@@ -231,5 +238,9 @@ Output should be as follows:
     void Update()
     {
 
+    }
+    void OnDisable()
+    {
+        StopAllCoroutines();
     }
 }

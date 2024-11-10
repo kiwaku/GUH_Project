@@ -32,4 +32,8 @@ public class SpawnOnLongLat : MonoBehaviour
         Vector3 initialPosition = new Vector3(x, y, z);
         return initialPosition;
     }
+    void OnDisable()
+    {
+        Destroy(gameObject);
+    }
 }
