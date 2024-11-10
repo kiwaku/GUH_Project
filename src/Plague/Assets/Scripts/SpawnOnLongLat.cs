@@ -6,11 +6,13 @@ public class SpawnOnLongLat : MonoBehaviour
 {
     public GameObject marker; // Assign the red marker prefab in the inspector
     public float radius = 51f; // Radius of the sphere
+    [SerializeField] GameObject holder;
 
     public void SpawnMarker(float latitude, float longitude, string City, string Year, double Population, double Area, double ConnectionProbability, int SanitationLevel, int PublicHealthLevel ,int EconomicStability)
     {
         Vector3 markerPosition = CalculateMarkerPosition(latitude, longitude);
         GameObject spawnedMarker = Instantiate(marker, markerPosition, Quaternion.identity);
+        spawnedMarker.transform.SetParent(holder.transform);
         infection_model model = spawnedMarker.GetComponent<infection_model>();
         model.N = Population;
         model.infection_rate = model.AdjustInfectionRate(model.infection_rate, Population, Area, ConnectionProbability, SanitationLevel, PublicHealthLevel, EconomicStability);
@@ -35,5 +37,9 @@ public class SpawnOnLongLat : MonoBehaviour
         // Initial position before rotation
         Vector3 initialPosition = new Vector3(x, y, z);
         return initialPosition;
+    }
+    void OnDisable()
+    {
+        Destroy(gameObject);
     }
 }

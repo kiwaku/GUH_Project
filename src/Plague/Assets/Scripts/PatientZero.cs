@@ -4,6 +4,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Net.Http;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using Newtonsoft.Json;
 
@@ -12,6 +13,7 @@ public class PatientZero : MonoBehaviour
     private static readonly HttpClient client = new HttpClient();
     private static string apiKey;
     [SerializeField] SpawnOnLongLat spawn;
+    [SerializeField] Prompt2 prompt2;
     private static string model = "gpt-4o";
     private static List<Dictionary<string, string>> conversationMemory = new List<Dictionary<string, string>>
     {
@@ -33,13 +35,11 @@ Area must be in km^2, choose the most commonly accepted number, and nothing else
 If you are confused as to where in the city, choose the center. Again, choose the most commonly accepted number, and nothing else. output format: longitude, latitude
 
 4. 
-Assign 10 as the baseline probability for an average connection between two cities.Assign weight multipliers to different types of connections and trade routes:
-High-Frequency Major Trade Route: Multiplier of 1.5 to 2.0.
-Moderate-Frequency Trade Route: Multiplier of 1.0 to 1.5.
-Low-Frequency Local Route: Multiplier of 0.5 to 1.0.
-
-Equation: 10*[multipliers] = answer
-the only output should be the calculated answer
+Assign 10 as the baseline probability for an average connection between two cities.Assign weights to different types of connections and trade routes:
+Assign weight values on a scale of 5–20:
+High-Frequency Major Trade Route (15-20).
+Moderate-Frequency Trade Route (10-15).
+Low-Frequency Local Route: Multiplier (5-10).
 
 5. 
 Assign a baseline of 5 for an average level of sanitation.
@@ -76,41 +76,30 @@ Output should be as follows:
         }
     };
 
+    private CancellationTokenSource cancellationTokenSource;
+
     void Start()
     {
-        //apiKey=;
-;
+        apiKey = Environment.GetEnvironmentVariable("MY_API_KEY"); 
+
 
         if (string.IsNullOrEmpty(apiKey))
         {
             throw new Exception("API key not found. Please set it in the environment variables.");
         }
 
+        cancellationTokenSource = new CancellationTokenSource();
         // StartCoroutine(MainCoroutine());
     }
 
     public IEnumerator MainCoroutine(string prompt)
     {
-        // while (true)
-        // {
-        //     Debug.Log("Your question (type 'exit' to end): ");
-        //     string prompt = Console.ReadLine();
-        //     if (prompt.ToLower() == "exit")
-        //     {
-        //         break;
-        //     }
-        //     yield return ConverseWithMemory(prompt);
-        // }
-
-        // Get this prompt as patient zero from the UI
-        // string prompt = "London, 2000";
-        yield return ConverseWithMemory(prompt);
+        yield return ConverseWithMemory(prompt, cancellationTokenSource.Token);
     }
 
-
-    private async Task ConverseWithMemory(string prompt)
+    private async Task ConverseWithMemory(string prompt, CancellationToken cancellationToken)
     {
-
+        StartCoroutine(prompt2.MainCoroutine(prompt));
         conversationMemory.Add(new Dictionary<string, string> { { "role", "user" }, { "content", prompt } });
 
         var requestBody = new
@@ -123,14 +112,15 @@ Output should be as follows:
         var content = new StringContent(JsonConvert.SerializeObject(requestBody), Encoding.UTF8, "application/json");
         client.DefaultRequestHeaders.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", apiKey);
 
-        var response = await client.PostAsync("https://api.openai.com/v1/chat/completions", content);
+        var response = await client.PostAsync("https://api.openai.com/v1/chat/completions", content, cancellationToken);
         var responseString = await response.Content.ReadAsStringAsync();
         var responseObject = JsonConvert.DeserializeObject<ResponseObject>(responseString);
 
-        string assistantMessage = responseObject.choices[0].message.content;
-        Debug.Log("Chatbot response: " + assistantMessage);
+        string[] messages = responseObject.choices[0].message.content.Split(new[] { '\n' }, StringSplitOptions.RemoveEmptyEntries);
+        string assistantMessage = messages[messages.Length - 1];
+        Debug.Log("Chatbot 1 response: " + assistantMessage);
 
-        ParsedResponse parsedResponse = ParseResponse(assistantMessage);
+        ParsedResponse parsedResponse = ParseResponse(assistantMessage, prompt);
         Debug.Log($"City: {parsedResponse.City}, Year: {parsedResponse.Year}, Population: {parsedResponse.Population}, Longitude: {parsedResponse.Longitude}, Latitude: {parsedResponse.Latitude}, Connection Probability: {parsedResponse.ConnectionProbability}, Sanitation Level: {parsedResponse.SanitationLevel}, Public Health Level: {parsedResponse.PublicHealthLevel}, Economic Stability: {parsedResponse.EconomicStability}");
         spawn.SpawnMarker(parsedResponse.Latitude, parsedResponse.Longitude, parsedResponse.City, parsedResponse.Year, parsedResponse.Population, parsedResponse.Area, parsedResponse.ConnectionProbability, parsedResponse.SanitationLevel, parsedResponse.PublicHealthLevel, parsedResponse.EconomicStability);
         conversationMemory.Add(new Dictionary<string, string> { { "role", "assistant" }, { "content", assistantMessage } });
@@ -140,12 +130,12 @@ Output should be as follows:
             conversationMemory.RemoveAt(1);
         }
     }
-    private static ParsedResponse ParseResponse(string response)
+
+    private static ParsedResponse ParseResponse(string response, string prompt)
     {
         try
         {
             response = response.Replace("Chatbot response: ", "").Trim();
-
 
             // Remove unwanted characters
             response = response.Replace("[", "")
@@ -155,13 +145,10 @@ Output should be as follows:
                             .Replace("{", "")
                             .Replace("}", "");
             var parts = response.Split(new[] { ", " }, StringSplitOptions.None);
-            // print(parts.Length);
-            // for (int i = 0; i < parts.Length; i++)
-            // {
-            //     Debug.Log($"Part {i}: {parts[i]}");
-            // }
             if (parts.Length != 10)
             {
+                Debug.Log("Chatbot 1 prompt: " + prompt);
+                Debug.LogError($"Response does not contain the expected number of parts {parts.Length}.");
                 throw new FormatException("Response does not contain the expected number of parts.");
             }
 
@@ -173,7 +160,7 @@ Output should be as follows:
                 Area = double.Parse(parts[3]),
                 Longitude = float.Parse(parts[4]),
                 Latitude = float.Parse(parts[5]),
-                ConnectionProbability = double.Parse(parts[6]),
+                ConnectionProbability = ParseInt(parts[6], "Connection Probability"),
                 SanitationLevel = ParseInt(parts[7], "Sanitation Level"),
                 PublicHealthLevel = ParseInt(parts[8], "Public Health Level"),
                 EconomicStability = ParseInt(parts[9], "Economic Stability")
@@ -196,7 +183,6 @@ Output should be as follows:
         return result;
     }
 
-
     public class ParsedResponse
     {
         public string City { get; set; }
@@ -205,7 +191,7 @@ Output should be as follows:
         public double Area { get; set; }
         public float Longitude { get; set; }
         public float Latitude { get; set; }
-        public double ConnectionProbability { get; set; }
+        public int ConnectionProbability { get; set; }
         public int SanitationLevel { get; set; }
         public int PublicHealthLevel { get; set; }
         public int EconomicStability { get; set; }
@@ -227,9 +213,9 @@ Output should be as follows:
         public string content { get; set; }
     }
 
-    // Update is called once per frame
-    void Update()
+    void OnDisable()
     {
-
+        cancellationTokenSource.Cancel();
+        StopAllCoroutines();
     }
 }
