@@ -8,7 +8,7 @@ public class infection_model : MonoBehaviour
 {
 
     [SerializeField] infection_factors factors;
-    [SerializeField] city_data_loader cityData;
+
 
     public double N = 1000;           // Total population
     public double infection_rate = 0.001;         // Infection rate
@@ -23,16 +23,14 @@ public class infection_model : MonoBehaviour
     //private double maxTime = 365;     // Total simulation time in days
     
     // Start is called once before the first execution of Update after the MonoBehaviour is created
-    void Start()
+    void OnEnable()
     {
         // Initial conditions
         S = N - 1;  // Initial susceptible
         E = 0;      // Initial exposed
         I = 1;      // Initial infected
         R = 0;      // Initial recovered
-        infection_rate = AdjustInfectionRate(infection_rate, cityData.population, cityData.area, cityData.connectionLevel, cityData.sanitationLevel, cityData.medicalLevel, cityData.economicStabilityLevel);
-        recovery_rate = AdjustRecoveryRate(recovery_rate, cityData.medicalLevel, cityData.sanitationLevel);
-        SimulateSEIR();
+
     }
 
     // Update is called once per frame
@@ -70,8 +68,9 @@ public class infection_model : MonoBehaviour
     }
 
     // Run the simulation for maxTime with time steps
-    private void SimulateSEIR()
+    public void SimulateSEIR()
     {
+        Debug.Log("test");
         List<double> SList = new List<double>();
         List<double> EList = new List<double>();
         List<double> IList = new List<double>();

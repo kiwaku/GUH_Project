@@ -14,8 +14,9 @@ GameObject:
   - component: {fileID: 6018984251330613129}
   - component: {fileID: 7587498906546184927}
   - component: {fileID: 5539991794992699453}
+  - component: {fileID: 2040413290385739769}
   m_Layer: 0
-  m_Name: Test
+  m_Name: CIty
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -4910,3 +4911,22 @@ ParticleSystemRenderer:
   m_MeshWeighting2: 1
   m_MeshWeighting3: 1
   m_MaskInteraction: 0
+--- !u!114 &2040413290385739769
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4760365673378353410}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 19e759fcabd42407b963bf78f01d8e67, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  factors: {fileID: 0}
+  cityData: {fileID: 0}
+  N: 1000
+  infection_rate: 0.001
+  incubation_rate: 0.1923076923076923
+  recovery_rate: 0
+  mortality_rate: 0

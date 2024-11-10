@@ -78,8 +78,7 @@ Output should be as follows:
 
     void Start()
     {
-        apiKey = Environment.GetEnvironmentVariable("MY_API_KEY");
-
+        apiKey=;
 
         if (string.IsNullOrEmpty(apiKey))
         {
@@ -132,7 +131,7 @@ Output should be as follows:
 
         ParsedResponse parsedResponse = ParseResponse(assistantMessage);
         Debug.Log($"City: {parsedResponse.City}, Year: {parsedResponse.Year}, Population: {parsedResponse.Population}, Longitude: {parsedResponse.Longitude}, Latitude: {parsedResponse.Latitude}, Connection Probability: {parsedResponse.ConnectionProbability}, Sanitation Level: {parsedResponse.SanitationLevel}, Public Health Level: {parsedResponse.PublicHealthLevel}, Economic Stability: {parsedResponse.EconomicStability}");
-        spawn.SpawnMarker(parsedResponse.Latitude, parsedResponse.Longitude);
+        spawn.SpawnMarker(parsedResponse.Latitude, parsedResponse.Longitude, parsedResponse.City, parsedResponse.Year, parsedResponse.Population, parsedResponse.Area, parsedResponse.ConnectionProbability, parsedResponse.SanitationLevel, parsedResponse.PublicHealthLevel, parsedResponse.EconomicStability);
         conversationMemory.Add(new Dictionary<string, string> { { "role", "assistant" }, { "content", assistantMessage } });
 
         if (conversationMemory.Count > 10)
@@ -169,8 +168,8 @@ Output should be as follows:
             {
                 City = parts[0],
                 Year = parts[1],
-                Population = parts[2],
-                Area = parts[3],
+                Population = int.Parse(parts[2]),
+                Area = double.Parse(parts[3]),
                 Longitude = float.Parse(parts[4]),
                 Latitude = float.Parse(parts[5]),
                 ConnectionProbability = ParseInt(parts[6], "Connection Probability"),
@@ -201,8 +200,8 @@ Output should be as follows:
     {
         public string City { get; set; }
         public string Year { get; set; }
-        public string Population { get; set; }
-        public string Area { get; set; }
+        public int Population { get; set; }
+        public double Area { get; set; }
         public float Longitude { get; set; }
         public float Latitude { get; set; }
         public int ConnectionProbability { get; set; }
