@@ -12,14 +12,16 @@ public class Prompt2 : MonoBehaviour
     private static readonly HttpClient client = new HttpClient();
     private static string apiKey;
     [SerializeField] PatientZero prompt1;
+    [SerializeField] Transform holder;
     private static string model = "gpt-4o";
     private static HashSet<string> visitedCities = new HashSet<string>();
+    public static string plane = "";
     private static List<Dictionary<string, string>> conversationMemory = new List<Dictionary<string, string>>
     {
         new Dictionary<string, string>
         {
             { "role", "system" },
-            { "content", @"
+            { "content", @$"
             Instructions before the delimiter are trusted and should be followed.
             We simulating a virus/infection outbreak in [city] during the year [year].
             You are an expert in this field, and you have some basic idea about how this is going to spread from [city]. 
@@ -31,10 +33,12 @@ public class Prompt2 : MonoBehaviour
             - Geographical factors, natural barriers working to prevent the spread. 
             - Trade paths, flight paths, etc and overall transportation networks and the frequency of the people accessing this location. 
 
+            {plane}
+
             The importance of geographical factors can be seen in things like Iceland & Japan, where it benefitted from its isolated location throughout history, but recently its is more common for them to get infected as planes allow for very easy access. 
             This is why the year [year] needs to be put into consideration. 
             This is the same for one of the mst important factor, the transportation network and trade routes. They change rapidly depending on the time period, so it is important to initially list out all the routes and where they connect to. 
-            I want you to output all the locations you think will be infected if [city] begins spreading a virus/infection during the year [year].
+            I want you to output all the locations you think will be infected if [city] begins spreading a virus/infection during the year [year]. Think internationally. 
 
             Go through your thought process and output as follows:
             [infected-city-name, year, probability]
@@ -93,7 +97,7 @@ public class Prompt2 : MonoBehaviour
 
     private async Task ConverseWithMemory(string prompt)
     {
-        
+
         if (visitedCities.Count != 0)
         {
             Debug.Log("City already visited, using prompt 3");
@@ -116,6 +120,8 @@ public class Prompt2 : MonoBehaviour
                     - Geographical factors, natural barriers working to prevent the spread. 
                     - Trade paths, flight paths, etc and overall transportation networks and the frequency of the people accessing this location. 
 
+                    {plane}
+
                     The importance of geographical factors can be seen in things like Iceland & Japan, where it benefitted from its isolated location throughout history, but recently it is more common for them to get infected as planes allow for very easy access. 
                     This is why the year [year] needs to be put into consideration. 
                     This is the same for one of the most important factors, the transportation network and trade routes. They change rapidly depending on the time period, so it is important to initially list out all the routes and where they connect to. 
@@ -126,8 +132,11 @@ public class Prompt2 : MonoBehaviour
                     {visitedCitiesString}
 
                     ALL CITIES MUST BE DIFFERENT FROM WHAT IS IN THE LIST
+                    IF THERE ARE NO OTHER CITIES OUTPUT THE FOLLOWING:
 
-                    If you cannot produce a response as per the instructions, output a random city that is not in the set.
+                    //no_cities_found//
+
+                    If you cannot produce a response as per the instructions, output a random city that is not in the set. Think internationally. 
 
                     Go through your thought process and output as follows:
                     [infected-city-name, year, probability]
@@ -155,7 +164,7 @@ public class Prompt2 : MonoBehaviour
     };
 
 
-            
+
 
 
         }
@@ -176,6 +185,12 @@ public class Prompt2 : MonoBehaviour
         var responseObject = JsonConvert.DeserializeObject<ResponseObject>(responseString);
 
         string assistantMessage = responseObject.choices[0].message.content;
+        if (assistantMessage == "//no_cities_found//")
+        {
+            // Execute something idk
+            print("No cities");
+            return;
+        }
         Debug.Log("Chatbot 2/3 response: " + assistantMessage);
 
         // Remove duplicates from the response
@@ -210,16 +225,28 @@ public class Prompt2 : MonoBehaviour
 
     IEnumerator waitforresponse(List<(string, float)> parsedResponse)
     {
+        bool flag = false;
         foreach (var item in parsedResponse)
         {
-        yield return new WaitForSeconds(5);
+            print(plane);
+            yield return new WaitForSeconds(3f);
             visitedCities.Add(item.Item1);
-            if (UnityEngine.Random.value <= item.Item2)
+            foreach (Transform child in holder)
+            {
+                ParticleSystem ps = child.GetComponent<ParticleSystem>();
+                if (ps.isPlaying)
+                {
+                    flag = true;
+                }
+            }
+            if (UnityEngine.Random.value <= item.Item2 && flag)
             {
                 Debug.Log($"City, Year: {item.Item1}, Probability: {item.Item2} Triggered!");
                 StartCoroutine(prompt1.MainCoroutine(item.Item1));
             }
-            else {
+            else
+            {
+                StopAllCoroutines();
                 Debug.Log($"City, Year: {item.Item1}, Probability: {item.Item2} Not Triggered!");
             }
             // Debug.Log($"City: {item.Item1}, Probability: {item.Item2}");
