@@ -2,7 +2,7 @@ using UnityEngine;
 
 // To spawn a game object at a specific latitude and longitude, call SpawnMarker(latitute, longitude)
 
-public class MarkPoint : MonoBehaviour
+public class SpawnOnLongLat : MonoBehaviour
 {
     public GameObject marker; // Assign the red marker prefab in the inspector
     public float radius = 51f; // Radius of the sphere
