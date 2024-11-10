@@ -7,6 +7,10 @@ public class ClampYear : MonoBehaviour
     [SerializeField] TMP_InputField text;
     public void SetYear()
     {
+        if (text.text == "")
+        {
+            return;
+        }
         if (int.Parse(text.text) > 2020)
         {
             text.text = "2020";
