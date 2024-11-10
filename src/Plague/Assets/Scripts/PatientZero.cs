@@ -4,6 +4,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Net.Http;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using Newtonsoft.Json;
 
@@ -75,42 +76,27 @@ Output should be as follows:
         }
     };
 
+    private CancellationTokenSource cancellationTokenSource;
+
     void Start()
     {
         apiKey = Environment.GetEnvironmentVariable("MY_API_KEY");
-
 
         if (string.IsNullOrEmpty(apiKey))
         {
             throw new Exception("API key not found. Please set it in the environment variables.");
         }
 
+        cancellationTokenSource = new CancellationTokenSource();
         // StartCoroutine(MainCoroutine());
     }
 
     public IEnumerator MainCoroutine(string prompt)
     {
-        // while (true)
-        // {
-        //     Debug.Log("Your question (type 'exit' to end): ");
-        //     string prompt = Console.ReadLine();
-        //     if (prompt.ToLower() == "exit")
-        //     {
-        //         break;
-        //     }
-        //     yield return ConverseWithMemory(prompt);
-        // }
-
-        // Get this prompt as patient zero from the UI
-        // string prompt = "London, 2000";
-        //Debug.Log("Prompt 1: " + prompt);
-        
-        yield return ConverseWithMemory(prompt);
-        
+        yield return ConverseWithMemory(prompt, cancellationTokenSource.Token);
     }
 
-
-    private async Task ConverseWithMemory(string prompt)
+    private async Task ConverseWithMemory(string prompt, CancellationToken cancellationToken)
     {
         StartCoroutine(prompt2.MainCoroutine(prompt));
         conversationMemory.Add(new Dictionary<string, string> { { "role", "user" }, { "content", prompt } });
@@ -125,7 +111,7 @@ Output should be as follows:
         var content = new StringContent(JsonConvert.SerializeObject(requestBody), Encoding.UTF8, "application/json");
         client.DefaultRequestHeaders.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", apiKey);
 
-        var response = await client.PostAsync("https://api.openai.com/v1/chat/completions", content);
+        var response = await client.PostAsync("https://api.openai.com/v1/chat/completions", content, cancellationToken);
         var responseString = await response.Content.ReadAsStringAsync();
         var responseObject = JsonConvert.DeserializeObject<ResponseObject>(responseString);
 
@@ -143,12 +129,12 @@ Output should be as follows:
             conversationMemory.RemoveAt(1);
         }
     }
+
     private static ParsedResponse ParseResponse(string response, string prompt)
     {
         try
         {
             response = response.Replace("Chatbot response: ", "").Trim();
-
 
             // Remove unwanted characters
             response = response.Replace("[", "")
@@ -158,11 +144,6 @@ Output should be as follows:
                             .Replace("{", "")
                             .Replace("}", "");
             var parts = response.Split(new[] { ", " }, StringSplitOptions.None);
-            // print(parts.Length);
-            // for (int i = 0; i < parts.Length; i++)
-            // {
-            //     Debug.Log($"Part {i}: {parts[i]}");
-            // }
             if (parts.Length != 10)
             {
                 Debug.Log("Chatbot 1 prompt: " + prompt);
@@ -186,7 +167,7 @@ Output should be as follows:
         }
         catch (Exception ex)
         {
-            Debug.LogError("An error occurred while parsing: " + ex.Message );
+            Debug.LogError("An error occurred while parsing: " + ex.Message);
             Debug.LogError("Stack Trace: " + ex.StackTrace);
             throw;
         }
@@ -200,7 +181,6 @@ Output should be as follows:
         }
         return result;
     }
-
 
     public class ParsedResponse
     {
@@ -232,13 +212,9 @@ Output should be as follows:
         public string content { get; set; }
     }
 
-    // Update is called once per frame
-    void Update()
-    {
-
-    }
     void OnDisable()
     {
+        cancellationTokenSource.Cancel();
         StopAllCoroutines();
     }
 }
