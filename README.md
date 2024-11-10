@@ -12,6 +12,11 @@ Epidemic Through Time is a virus spread simulator inspired by the theme of time 
 
 Epidemic Through Time lets users experience how viruses historically spread, adapted for specific eras from ancient civilizations to modern-day cities. Using AI-driven prompts, historical data, and epidemiological modeling, the simulation dynamically adjusts to each time period’s unique context. Factors like trade routes, environmental barriers, and medical practices help shape the spread of infection, visualized on an interactive globe.
 
+# To Run:
+unzip file
+run build
+
+
 # The Solution
 
 This project provides an interactive, educational experience that highlights how virus dynamics vary over time and geography, showing how pandemics would have impacted different societies. Key components include:
