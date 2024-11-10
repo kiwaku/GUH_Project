@@ -972,6 +972,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   spawn: {fileID: 1952671265}
+  prompt2: {fileID: 2132629487}
 --- !u!4 &2132629486
 Transform:
   m_ObjectHideFlags: 0

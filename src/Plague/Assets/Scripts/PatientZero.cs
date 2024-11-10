@@ -34,13 +34,11 @@ Area must be in km^2, choose the most commonly accepted number, and nothing else
 If you are confused as to where in the city, choose the center. Again, choose the most commonly accepted number, and nothing else. output format: longitude, latitude
 
 4. 
-Assign 10 as the baseline probability for an average connection between two cities.Assign weight multipliers to different types of connections and trade routes:
-High-Frequency Major Trade Route: Multiplier of 1.5 to 2.0.
-Moderate-Frequency Trade Route: Multiplier of 1.0 to 1.5.
-Low-Frequency Local Route: Multiplier of 0.5 to 1.0.
-
-Equation: 10*[multipliers] = answer
-the only output should be the calculated answer
+Assign 10 as the baseline probability for an average connection between two cities.Assign weights to different types of connections and trade routes:
+Assign weight values on a scale of 5–20:
+High-Frequency Major Trade Route (15-20).
+Moderate-Frequency Trade Route (10-15).
+Low-Frequency Local Route: Multiplier (5-10).
 
 5. 
 Assign a baseline of 5 for an average level of sanitation.
