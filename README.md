@@ -1,18 +1,18 @@
-GUH_Project
+## GUH_Project
 
-Great Uni Hack Manchester - Project Base
+# Great Uni Hack Manchester - Project Base
 
 Theme: Travelling Through Time
 
-Project: Epidemic Through Time
+# Project: Epidemic Through Time
 
 Epidemic Through Time is a virus spread simulator inspired by the theme of time travel, designed to model how an epidemic would propagate across different historical periods. This simulation emphasizes accuracy, drawing on historical data related to transportation, population density, sanitation practices, and medical knowledge to visualize pathogen spread through time.
 
-Overview
+# Overview
 
 Epidemic Through Time lets users experience how viruses historically spread, adapted for specific eras from ancient civilizations to modern-day cities. Using AI-driven prompts, historical data, and epidemiological modeling, the simulation dynamically adjusts to each time period’s unique context. Factors like trade routes, environmental barriers, and medical practices help shape the spread of infection, visualized on an interactive globe.
 
-The Solution
+# The Solution
 
 This project provides an interactive, educational experience that highlights how virus dynamics vary over time and geography, showing how pandemics would have impacted different societies. Key components include:
 	1.	Identify the Problem:
@@ -29,14 +29,14 @@ This project provides an interactive, educational experience that highlights how
 	•	Comprehensive Documentation: The README explains how the model calculates infection probabilities, processes historical context with AI, and includes detailed usage instructions.
 	•	Organized Codebase: Our codebase integrates data processing, AI prompts, SEIR modeling, and UI functions, structured for clarity and easy modification.
 
-Core Components
+# Core Components
 
 	1.	Historical Context Definition: Selecting an origin city and year enables the model to generate predictions based on the city’s historical connectivity, public health, and sanitation standards.
 	2.	AI-Driven Prompt Engineering: GPT-4 interprets prompts that reflect the chosen period, ensuring the simulation accounts for relevant travel constraints, natural barriers, and medical practices.
 	3.	Interactive Visualization: The globe interface visualizes infection spread over time, enabling users to see how virus dynamics change across different historical contexts.
 	4.	Epidemiological Accuracy: By combining SEIR modeling with probability calculations, the simulation maintains realistic contagion dynamics, providing a balanced blend of historical accuracy and educational engagement.
 
-Creativity and Realism
+# Creativity and Realism
 
 This project is designed to be both accurate and engaging, making complex epidemiological and historical data accessible in a visual format. Users can explore how factors like trade routes and sanitation influenced historical epidemics, offering insights into the evolution of public health and travel systems.
 
