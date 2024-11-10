@@ -78,7 +78,8 @@ Output should be as follows:
 
     void Start()
     {
-        apiKey=;
+        //apiKey=;
+;
 
         if (string.IsNullOrEmpty(apiKey))
         {
@@ -168,11 +169,11 @@ Output should be as follows:
             {
                 City = parts[0],
                 Year = parts[1],
-                Population = int.Parse(parts[2]),
+                Population = double.Parse(parts[2]),
                 Area = double.Parse(parts[3]),
                 Longitude = float.Parse(parts[4]),
                 Latitude = float.Parse(parts[5]),
-                ConnectionProbability = ParseInt(parts[6], "Connection Probability"),
+                ConnectionProbability = double.Parse(parts[6]),
                 SanitationLevel = ParseInt(parts[7], "Sanitation Level"),
                 PublicHealthLevel = ParseInt(parts[8], "Public Health Level"),
                 EconomicStability = ParseInt(parts[9], "Economic Stability")
@@ -200,11 +201,11 @@ Output should be as follows:
     {
         public string City { get; set; }
         public string Year { get; set; }
-        public int Population { get; set; }
+        public double Population { get; set; }
         public double Area { get; set; }
         public float Longitude { get; set; }
         public float Latitude { get; set; }
-        public int ConnectionProbability { get; set; }
+        public double ConnectionProbability { get; set; }
         public int SanitationLevel { get; set; }
         public int PublicHealthLevel { get; set; }
         public int EconomicStability { get; set; }

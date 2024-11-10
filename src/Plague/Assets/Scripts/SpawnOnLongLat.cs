@@ -7,12 +7,12 @@ public class SpawnOnLongLat : MonoBehaviour
     public GameObject marker; // Assign the red marker prefab in the inspector
     public float radius = 51f; // Radius of the sphere
 
-    public void SpawnMarker(float latitude, float longitude, string City, string Year, int Population, double Area, int ConnectionProbability, int SanitationLevel, int PublicHealthLevel ,int EconomicStability)
+    public void SpawnMarker(float latitude, float longitude, string City, string Year, double Population, double Area, double ConnectionProbability, int SanitationLevel, int PublicHealthLevel ,int EconomicStability)
     {
         Vector3 markerPosition = CalculateMarkerPosition(latitude, longitude);
         GameObject spawnedMarker = Instantiate(marker, markerPosition, Quaternion.identity);
         infection_model model = spawnedMarker.GetComponent<infection_model>();
-        print(model.infection_rate);
+        model.N = Population;
         model.infection_rate = model.AdjustInfectionRate(model.infection_rate, Population, Area, ConnectionProbability, SanitationLevel, PublicHealthLevel, EconomicStability);
         model.recovery_rate = model.AdjustRecoveryRate(model.recovery_rate, PublicHealthLevel, SanitationLevel);
         model.SimulateSEIR();

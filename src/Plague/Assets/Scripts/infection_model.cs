@@ -2,35 +2,35 @@ using UnityEngine;
 using System.Collections.Generic;
 using System;
 
-
-
 public class infection_model : MonoBehaviour
 {
-
     [SerializeField] infection_factors factors;
 
+    public double N;                // Total population
+    public double infection_rate;    // Infection rate
+    public double incubation_rate ; // Incubation rate (1/incubation period in days)
+    public double recovery_rate;   // Recovery rate (1/infectious period in days)
+    public double mortality_rate;      // Death rate of infected population
 
-    public double N = 1000;           // Total population
-    public double infection_rate = 0.001;         // Infection rate
-    public double incubation_rate = 1.0 / 5.2;  // Incubation rate (1/incubation period in days)
-    public double recovery_rate = 1/2;   // Recovery rate (1/infectious period in days)
-
-    public double mortality_rate = 0; //death rate of infected pop
-    
     private double S, E, I, R, D;        // Compartments (Susceptible, Exposed, Infected, Recovered, Deceased)
 
-    private double timeStep = 1;    // Step size 
-    //private double maxTime = 365;     // Total simulation time in days
-    
+    private double timeStep = 1;    // Step size
+
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void OnEnable()
     {
         // Initial conditions
-        S = N - 1;  // Initial susceptible
         E = 0;      // Initial exposed
         I = 1;      // Initial infected
         R = 0;      // Initial recovered
+        D = 0;      // Initial deceased
+        recovery_rate = 1.0/7.0;
+        N = 0;
+        infection_rate = 0.5;
+        incubation_rate = 1.0 / 5.2;
+        mortality_rate = 0;
 
+        // Run the simulation
     }
 
     // Update is called once per frame
@@ -42,6 +42,7 @@ public class infection_model : MonoBehaviour
     // Derivative function for SEIR model
     private (double dSdt, double dEdt, double dIdt, double dRdt, double dDdt) Derivatives(double S, double E, double I, double R, double D)
     {
+        Debug.Log(I);
         double dSdt = (-infection_rate * S * I) / N;
         double dEdt = (infection_rate * S * I / N) - (incubation_rate * E);
         double dIdt = (incubation_rate * E) - ((recovery_rate + mortality_rate) * I);
@@ -67,10 +68,11 @@ public class infection_model : MonoBehaviour
         D += dt * (dD1 + 2 * dD2 + 2 * dD3 + dD4) / 6; // Update the deceased population
     }
 
-    // Run the simulation for maxTime with time steps
+    // Run the simulation for a specified number of days
     public void SimulateSEIR()
     {
-        Debug.Log("test");
+        Debug.Log($"{recovery_rate}, {infection_rate}, {N}");
+        S=N-1;
         List<double> SList = new List<double>();
         List<double> EList = new List<double>();
         List<double> IList = new List<double>();
@@ -78,8 +80,21 @@ public class infection_model : MonoBehaviour
         List<double> DList = new List<double>();
 
         double time = 0;
-        while (I/N > 0.0001)
+        while ((I/N) > 0)
         {
+             // Dynamically adjust timeStep based on infection level
+            if (I / N < 0.001)
+            {
+                timeStep = 10; // Larger step when infection is low
+            }
+            else if (I / N < 0.01)
+            {
+                timeStep = 5; // Moderate step
+            }
+            else
+            {
+                timeStep = 1; // Small step for high infection levels
+            }
             // Store the current values
             SList.Add(S / N);
             EList.Add(E / N);
@@ -93,17 +108,16 @@ public class infection_model : MonoBehaviour
             // Increment time
             time += timeStep;
         }
-
-        // Output results (for example, printing to the console)
+        // Output results with increased precision
         for (int i = 0; i < SList.Count; i++)
         {
-            Debug.Log($"Day {i * timeStep:0.0} - S: {SList[i]:0.000}, E: {EList[i]:0.000}, I: {IList[i]:0.000}, R: {RList[i]:0.000}, D: {DList[i]:0.000}");
+            Debug.Log($"Day {i * timeStep:0.0} - S: {SList[i]:0.000000}, E: {EList[i]:0.000000}, I: {IList[i]:0.000000}, R: {RList[i]:0.000000}, D: {DList[i]:0.000000}");
         }
     }
 
+    // Adjust the infection rate based on various factors
     public double AdjustInfectionRate(double baseInfectionRate, double population, double citySize, double cityConnections, double sanitationLevel, double medicalLevel, double economicLevel)
     {
-
         double densityFactor = factors.NormalizePopulationDensity(population, citySize);
         double connectionFactor = factors.NormalizeCityConnections(cityConnections);
         double sanitationFactor = factors.NormalizeSanitationLevel(sanitationLevel);
@@ -117,15 +131,14 @@ public class infection_model : MonoBehaviour
         return baseInfectionRate * (1 + weightedFactor);
     }
 
-    public double AdjustRecoveryRate(double baseRecoveryRate, double medicalLevel, double sanitationLevel){
+    // Adjust the recovery rate based on medical and sanitation levels
+    public double AdjustRecoveryRate(double baseRecoveryRate, double medicalLevel, double sanitationLevel)
+    {
         double medicalFactor = factors.NormalizeMedicalKnowledge(medicalLevel);
         double sanitationFactor = factors.NormalizeSanitationLevel(sanitationLevel);
 
         double weightedFactor = (medicalFactor * 0.2) + (sanitationFactor * 0.1);
 
         return baseRecoveryRate * (1 + weightedFactor);
-
     }
-    
-    
 }
