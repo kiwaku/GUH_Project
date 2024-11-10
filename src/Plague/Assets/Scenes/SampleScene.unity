@@ -805,6 +805,17 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1041857509 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 3514780807223823670, guid: a5e6d9e602416a343bc91ea2d7f76710, type: 3}
+  m_PrefabInstance: {fileID: 9217439718777222894}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2da0c512f12947e489f739169773d7ca, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &1712207365 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: -4376308692062500772, guid: 64a0bfa8433ddc94ca072f7db72b83f4, type: 3}
@@ -983,6 +994,18 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 0}
     m_Modifications:
+    - target: {fileID: 809262888819688401, guid: a5e6d9e602416a343bc91ea2d7f76710, type: 3}
+      propertyPath: city
+      value: 
+      objectReference: {fileID: 1041857509}
+    - target: {fileID: 809262888819688401, guid: a5e6d9e602416a343bc91ea2d7f76710, type: 3}
+      propertyPath: year
+      value: 
+      objectReference: {fileID: 1804242554}
+    - target: {fileID: 809262888819688401, guid: a5e6d9e602416a343bc91ea2d7f76710, type: 3}
+      propertyPath: input
+      value: 
+      objectReference: {fileID: 2132629485}
     - target: {fileID: 3324756015468118561, guid: a5e6d9e602416a343bc91ea2d7f76710, type: 3}
       propertyPath: m_OnEndEdit.m_PersistentCalls.m_Calls.Array.size
       value: 1

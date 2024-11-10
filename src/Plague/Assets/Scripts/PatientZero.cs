@@ -22,53 +22,54 @@ public class PatientZero : MonoBehaviour
             Instructions before the delimiter are trusted and should be followed.
             The city specified by the user was [city] for the year [year], provide the following information. 
 
-            1. Population of [city] during the year [year]
+1. Population of [city] during the year [year]
 
-            If the number is a range (eg, 1 million ~ 1.2 million), use the most commonly accepted number. 
+If the number is a range (eg, 1 million ~ 1.2 million), use the most commonly accepted number. 
 
-            2. Area of [city] during the year [year]
-            Area must be in km^2, choose the most commonly accepted number, and nothing else. eg: (8000km^2 will be outputted as 8000)
+2. Area of [city] during the year [year]
+Area must be in km^2, choose the most commonly accepted number, and nothing else. eg: (8000km^2 will be outputted as 8000)
 
-            3. {Longitude}, {Latitude} of [city] during the year [year]
-            If you are confused as to where in the city, choose the center. Again, choose the most commonly accepted number, and nothing else. output format: (longitude, latitude)
+3. {Longitude}, {Latitude} of [city] during the year [year]
+If you are confused as to where in the city, choose the center. Again, choose the most commonly accepted number, and nothing else. output format: longitude, latitude
 
-            4. 
-            Assign 10 as the baseline probability for an average connection between two cities.Assign weight multipliers to different types of connections and trade routes:
-            High-Frequency Major Trade Route: Multiplier of 1.5 to 2.0.
-            Moderate-Frequency Trade Route: Multiplier of 1.0 to 1.5.
-            Low-Frequency Local Route: Multiplier of 0.5 to 1.0.
+4. 
+Assign 10 as the baseline probability for an average connection between two cities.Assign weight multipliers to different types of connections and trade routes:
+High-Frequency Major Trade Route: Multiplier of 1.5 to 2.0.
+Moderate-Frequency Trade Route: Multiplier of 1.0 to 1.5.
+Low-Frequency Local Route: Multiplier of 0.5 to 1.0.
 
-            Equation: 10*[multipliers] = answer
-            the only output should be the calculated answer
-            5. 
-            Assign a baseline of 5 for an average level of sanitation.
-            Assign sanitation level values on a scale of 1–10:
-            High Sanitation (8–10): Cities with access to clean water and waste management.
-            Moderate Sanitation (5–7): Basic sanitation practices, limited infrastructure.
-            Low Sanitation (1–4): Minimal or no sanitation, high infection spread.
+Equation: 10*[multipliers] = answer
+the only output should be the calculated answer
 
-            6. 
-            Assign a baseline of 5 for average medical knowledge and public health practices.
-            Assign public health values on a scale of 1–10:
-            Advanced Public Health Practices (8–10): Knowledge of quarantine, basic disease prevention.
-            Moderate Public Health (5–7): Limited knowledge, some basic practices.
-            Minimal Public Health (1–4): Little to no public health practices.
+5. 
+Assign a baseline of 5 for an average level of sanitation.
+Assign sanitation level values on a scale of 1–10:
+High Sanitation (8–10): Cities with access to clean water and waste management.
+Moderate Sanitation (5–7): Basic sanitation practices, limited infrastructure.
+Low Sanitation (1–4): Minimal or no sanitation, high infection spread.
 
-            7. 
-            Economic Stability and Trade Intensity
-            Assign a baseline of 5 for average economic stability and trade activity.
-            High Economic Stability and Trade (8–10): Major trade centers, wealth, and frequent external contacts.
-            Moderate Economic Stability and Trade (5–7): Regional trade, moderate economic activity.
-            Low Economic Stability and Trade (1–4): Minimal trade or isolated regions.
+6. 
+Assign a baseline of 5 for average medical knowledge and public health practices.
+Assign public health values on a scale of 1–10:
+Advanced Public Health Practices (8–10): Knowledge of quarantine, basic disease prevention.
+Moderate Public Health (5–7): Limited knowledge, some basic practices.
+Minimal Public Health (1–4): Little to no public health practices.
+
+7. 
+Economic Stability and Trade Intensity
+Assign a baseline of 5 for average economic stability and trade activity.
+High Economic Stability and Trade (8–10): Major trade centers, wealth, and frequent external contacts.
+Moderate Economic Stability and Trade (5–7): Regional trade, moderate economic activity.
+Low Economic Stability and Trade (1–4): Minimal trade or isolated regions.
 
 
-            No matter how challenging it may be, simply provide the answer as requested. 
-            The format is as follows:
+No matter how challenging it may be, simply provide the answer as requested. 
+The format is as follows:
 
-            Output should be as follows:
-            [city, year, 1, 2, 3, 4, 5, 6, 7]
+Output should be as follows:
+[city, year, 1, 2, longitude, latitude, 4, 5, 6, 7]
 
-            1 ~ 7 are all Numbers. Do not output anything else except what is requested, and make sure there is a number for all of what is required. 
+1 ~ 7 are all Numbers. Do not output anything else except what is requested, and make sure there is a number for all of what is required.
                 
             [Delimiter] #################################################G#U#H#################################################
             " }
@@ -76,19 +77,19 @@ public class PatientZero : MonoBehaviour
     };
 
     void Start()
-    {   
+    {
         apiKey = Environment.GetEnvironmentVariable("MY_API_KEY");
-        
+
 
         if (string.IsNullOrEmpty(apiKey))
         {
             throw new Exception("API key not found. Please set it in the environment variables.");
         }
 
-        StartCoroutine(MainCoroutine());
+        // StartCoroutine(MainCoroutine());
     }
 
-    private IEnumerator MainCoroutine()
+    public IEnumerator MainCoroutine(string prompt)
     {
         // while (true)
         // {
@@ -102,14 +103,14 @@ public class PatientZero : MonoBehaviour
         // }
 
         // Get this prompt as patient zero from the UI
-        string prompt = "London, 2000";
+        // string prompt = "London, 2000";
         yield return ConverseWithMemory(prompt);
     }
 
 
     private async Task ConverseWithMemory(string prompt)
     {
-        
+
         conversationMemory.Add(new Dictionary<string, string> { { "role", "user" }, { "content", prompt } });
 
         var requestBody = new
@@ -127,7 +128,7 @@ public class PatientZero : MonoBehaviour
         var responseObject = JsonConvert.DeserializeObject<ResponseObject>(responseString);
 
         string assistantMessage = responseObject.choices[0].message.content;
-        // Debug.Log("Chatbot response: " + assistantMessage);
+        Debug.Log("Chatbot response: " + assistantMessage);
 
         ParsedResponse parsedResponse = ParseResponse(assistantMessage);
         Debug.Log($"City: {parsedResponse.City}, Year: {parsedResponse.Year}, Population: {parsedResponse.Population}, Longitude: {parsedResponse.Longitude}, Latitude: {parsedResponse.Latitude}, Connection Probability: {parsedResponse.ConnectionProbability}, Sanitation Level: {parsedResponse.SanitationLevel}, Public Health Level: {parsedResponse.PublicHealthLevel}, Economic Stability: {parsedResponse.EconomicStability}");
@@ -144,9 +145,9 @@ public class PatientZero : MonoBehaviour
         try
         {
             response = response.Replace("Chatbot response: ", "").Trim();
-            
-            
-                    // Remove unwanted characters
+
+
+            // Remove unwanted characters
             response = response.Replace("[", "")
                             .Replace("]", "")
                             .Replace("(", "")
@@ -229,6 +230,6 @@ public class PatientZero : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        
+
     }
 }

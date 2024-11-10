@@ -7,15 +7,6 @@ public class SpawnOnLongLat : MonoBehaviour
     public GameObject marker; // Assign the red marker prefab in the inspector
     public float radius = 51f; // Radius of the sphere
 
-    // Start is called before the first frame update
-    void Start()
-    {
-        float latitude = 40.6670f; // Example latitude
-        float longitude = 16.6063f; // Example longitude
-
-        SpawnMarker(latitude, longitude);
-    }
-
     public void SpawnMarker(float latitude, float longitude)
     {
 
