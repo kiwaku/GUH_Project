@@ -1,13 +1,13 @@
 # Great Uni Hack Manchester 2024
-## Ranked 4th
+## Ranked 4th Overall
 
 Theme: Travelling Through Time
-
-
 
 # Project: Epidemic Through Time
 
 Epidemic Through Time is a virus spread simulator inspired by the theme of time travel, designed to model how an epidemic would propagate across different historical periods. This simulation emphasizes accuracy, drawing on historical data related to transportation, population density, sanitation practices, and medical knowledge to visualize pathogen spread through time.
+
+Devpost link: https://devpost.com/software/epidemic-through-time
 
 # Overview
 
