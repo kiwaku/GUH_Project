@@ -1,8 +1,9 @@
-## GUH_Project
-
-# Great Uni Hack Manchester - Project Base
+# Great Uni Hack Manchester 2024
+## Ranked 4th
 
 Theme: Travelling Through Time
+
+
 
 # Project: Epidemic Through Time
 
